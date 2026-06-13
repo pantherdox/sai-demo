@@ -1,0 +1,1413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SAI Athlete Medical Platform — Interactive Prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --blue:#0B4F8A; --blue2:#2E86C1; --blue-dark:#083a66;
+  --green:#27AE60; --amber:#F39C12; --red:#E74C3C; --black:#1A1A2E;
+  --bg:#F4F6F9; --surface:#FFFFFF; --line:#E3E8EF; --line2:#EDF1F6;
+  --ink:#1F2A37; --ink2:#5B6675; --ink3:#8A95A5;
+  --shadow:0 1px 2px rgba(16,40,70,.06),0 4px 16px rgba(16,40,70,.06);
+  --shadow-lg:0 10px 40px rgba(11,79,138,.16);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+  background:var(--bg); color:var(--ink); -webkit-font-smoothing:antialiased;
+  font-size:15px; line-height:1.5;
+}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+.hidden{display:none !important}
+
+/* ---------- Global top bar ---------- */
+.appbar{
+  position:sticky;top:0;z-index:100;
+  background:linear-gradient(180deg,#0d5594,#0B4F8A);
+  color:#fff;display:flex;align-items:center;gap:18px;
+  padding:0 22px;height:60px;box-shadow:0 2px 14px rgba(8,40,70,.28);
+}
+.brand{display:flex;align-items:center;gap:11px;font-weight:700;letter-spacing:.2px;white-space:nowrap;flex-shrink:0}
+.brand>div>div:first-child{font-size:14.5px}
+.brand .emblem{
+  width:34px;height:34px;border-radius:8px;background:rgba(255,255,255,.14);
+  display:grid;place-items:center;font-size:17px;border:1px solid rgba(255,255,255,.25)
+}
+.brand .sub{font-size:11px;font-weight:500;opacity:.78;letter-spacing:.3px;margin-top:1px}
+.nav{display:flex;gap:3px;margin-left:14px;flex-shrink:0}
+.nav button{
+  color:rgba(255,255,255,.78);font-weight:600;font-size:13px;
+  padding:9px 12px;border-radius:8px;transition:.15s;display:flex;align-items:center;gap:6px;white-space:nowrap
+}
+.nav button:hover{background:rgba(255,255,255,.10);color:#fff}
+.nav button.active{background:rgba(255,255,255,.18);color:#fff}
+.nav .dot{width:7px;height:7px;border-radius:50%;background:currentColor;opacity:.6}
+.appbar .spacer{flex:1}
+.badge-mvp{
+  font-size:10.5px;font-weight:700;letter-spacing:.6px;background:rgba(255,255,255,.16);
+  border:1px solid rgba(255,255,255,.28);padding:5px 10px;border-radius:20px
+}
+.event-chip{font-size:11.5px;opacity:.85;font-weight:500;display:flex;align-items:center;gap:6px;white-space:nowrap;flex-shrink:0}
+.event-chip .pin{color:#ffd27a}
+@media(max-width:1400px){.event-chip{display:none}}
+@media(max-width:1240px){.brand .sub{display:none}}
+
+/* ---------- Stage ---------- */
+.stage{max-width:1320px;margin:0 auto;padding:26px 22px 60px}
+
+/* ---------- Overview / launcher ---------- */
+.hero{
+  background:radial-gradient(1100px 360px at 18% -10%,rgba(46,134,193,.16),transparent 60%),
+             linear-gradient(180deg,#0B4F8A,#0a4a82);
+  color:#fff;border-radius:18px;padding:34px 38px;position:relative;overflow:hidden;
+  box-shadow:var(--shadow-lg)
+}
+.hero::after{content:"";position:absolute;right:-60px;top:-60px;width:280px;height:280px;
+  background:radial-gradient(circle,rgba(255,255,255,.10),transparent 70%);border-radius:50%}
+.hero .eyebrow{font-size:12px;letter-spacing:2px;text-transform:uppercase;opacity:.72;font-weight:600}
+.hero h1{font-size:30px;font-weight:800;letter-spacing:-.4px;margin:9px 0 8px;max-width:760px;line-height:1.18}
+.hero p{max-width:680px;opacity:.88;font-size:15px}
+.hero .stats{display:flex;gap:34px;margin-top:24px;flex-wrap:wrap}
+.hero .stat .n{font-size:24px;font-weight:800}
+.hero .stat .l{font-size:11.5px;opacity:.72;letter-spacing:.4px;text-transform:uppercase;margin-top:2px}
+
+.section-title{font-size:13px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--ink2);margin:30px 2px 14px}
+.cards3{display:grid;grid-template-columns:repeat(auto-fit,minmax(238px,1fr));gap:18px}
+.icard{
+  background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:22px;
+  box-shadow:var(--shadow);transition:.18s;cursor:pointer;position:relative;overflow:hidden
+}
+.icard:hover{transform:translateY(-3px);box-shadow:0 14px 34px rgba(11,79,138,.14);border-color:#cdd9e8}
+.icard .ic{width:46px;height:46px;border-radius:12px;display:grid;place-items:center;font-size:22px;margin-bottom:14px}
+.icard h3{font-size:17px;font-weight:700;margin-bottom:5px}
+.icard p{color:var(--ink2);font-size:13.5px;line-height:1.45}
+.icard .open{margin-top:16px;font-size:13px;font-weight:700;color:var(--blue);display:flex;align-items:center;gap:6px}
+.icard .tag{position:absolute;top:16px;right:16px;font-size:10.5px;font-weight:700;color:var(--ink3);letter-spacing:.5px}
+
+.flow-strip{display:flex;align-items:center;gap:0;background:var(--surface);border:1px solid var(--line);
+  border-radius:14px;padding:18px 20px;box-shadow:var(--shadow);overflow-x:auto}
+.flow-step{display:flex;align-items:center;gap:10px;white-space:nowrap}
+.flow-step .num{width:26px;height:26px;border-radius:50%;background:var(--blue);color:#fff;font-size:12px;
+  font-weight:700;display:grid;place-items:center}
+.flow-step .lbl{font-size:13px;font-weight:600}
+.flow-arrow{color:var(--ink3);margin:0 16px;font-size:16px}
+
+/* ---------- Phone frame ---------- */
+.phone-wrap{display:flex;gap:40px;align-items:flex-start;flex-wrap:wrap;justify-content:center}
+.phone{
+  width:380px;height:760px;background:#0c0c14;border-radius:42px;padding:11px;
+  box-shadow:0 30px 70px rgba(10,30,60,.30),0 4px 10px rgba(0,0,0,.2);position:relative;flex-shrink:0
+}
+.phone .notch{position:absolute;top:11px;left:50%;transform:translateX(-50%);width:140px;height:26px;
+  background:#0c0c14;border-radius:0 0 16px 16px;z-index:30}
+.screen{width:100%;height:100%;background:var(--bg);border-radius:32px;overflow:hidden;position:relative;display:flex;flex-direction:column}
+.statusbar{height:34px;background:var(--blue);display:flex;align-items:center;justify-content:space-between;
+  padding:0 20px 0 22px;color:#fff;font-size:11.5px;font-weight:600;flex-shrink:0}
+.statusbar .right{display:flex;gap:6px;align-items:center;opacity:.9}
+.app-view{flex:1;overflow-y:auto;overflow-x:hidden}
+.app-view::-webkit-scrollbar{width:0}
+
+.side-note{max-width:300px}
+.side-note h4{font-size:13px;letter-spacing:1px;text-transform:uppercase;color:var(--ink2);margin-bottom:12px}
+.note-item{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:12px;box-shadow:var(--shadow)}
+.note-item .t{font-weight:700;font-size:13.5px;margin-bottom:3px;display:flex;align-items:center;gap:8px}
+.note-item .d{font-size:12.5px;color:var(--ink2);line-height:1.45}
+.note-item .badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;background:#e8f1fb;color:var(--blue)}
+
+/* athlete app interior */
+.a-header{background:var(--blue);color:#fff;padding:14px 18px 16px}
+.a-header .hello{font-size:12.5px;opacity:.82}
+.a-header .name{font-size:18px;font-weight:700;margin-top:1px}
+.a-header .gps{display:flex;align-items:center;gap:7px;margin-top:10px;font-size:11.5px;
+  background:rgba(255,255,255,.14);padding:6px 11px;border-radius:20px;width:fit-content}
+.a-header .gps .led{width:8px;height:8px;border-radius:50%;background:#7be0a4;box-shadow:0 0 0 3px rgba(123,224,164,.3)}
+.a-body{padding:16px 16px 90px}
+
+.sos{
+  width:100%;background:linear-gradient(180deg,#ef5b4c,#E74C3C);color:#fff;border-radius:18px;
+  padding:20px;display:flex;align-items:center;gap:16px;box-shadow:0 10px 24px rgba(231,76,60,.32);margin-bottom:16px;
+  position:relative;overflow:hidden
+}
+.sos::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 80% 50%,rgba(255,255,255,.18),transparent 60%)}
+.sos .ring{width:54px;height:54px;border-radius:50%;border:3px solid rgba(255,255,255,.7);
+  display:grid;place-items:center;font-size:22px;animation:pulse 2s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(255,255,255,.4)}70%{box-shadow:0 0 0 14px rgba(255,255,255,0)}100%{box-shadow:0 0 0 0 rgba(255,255,255,0)}}
+.sos .tx .t{font-size:18px;font-weight:800;letter-spacing:.3px}
+.sos .tx .s{font-size:12px;opacity:.92;margin-top:1px}
+
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow)}
+.case-card{padding:15px 16px;margin-bottom:14px}
+.case-card .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:9px}
+.case-card .cid{font-size:11.5px;font-weight:700;color:var(--ink3);letter-spacing:.4px}
+.sev{font-size:10.5px;font-weight:700;padding:3px 9px;border-radius:20px;letter-spacing:.3px}
+.sev.green{background:#e6f6ec;color:#1d8a4c}.sev.amber{background:#fdf0dc;color:#b9760a}
+.sev.red{background:#fde4e1;color:#c0392b}.sev.urgent{background:#fdf0dc;color:#b9760a}
+.case-card h4{font-size:15px;font-weight:700;margin-bottom:3px}
+.case-card .meta{font-size:12.5px;color:var(--ink2)}
+.case-card .status-row{display:flex;align-items:center;gap:8px;margin-top:12px;padding-top:12px;border-top:1px solid var(--line2);font-size:12.5px}
+.case-card .status-row .led{width:8px;height:8px;border-radius:50%;background:var(--green)}
+
+.sec-label{font-size:11.5px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--ink3);margin:6px 2px 10px}
+
+.cat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:11px}
+.cat-tile{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px 14px;text-align:left;
+  transition:.15s;box-shadow:var(--shadow)}
+.cat-tile:hover{border-color:var(--blue2);transform:translateY(-2px)}
+.cat-tile .em{font-size:22px}
+.cat-tile .nm{font-weight:700;font-size:14px;margin-top:9px}
+.cat-tile .sb{font-size:11px;color:var(--ink2);margin-top:2px;line-height:1.3}
+
+.field{margin-bottom:15px}
+.field label{display:block;font-size:12.5px;font-weight:600;color:var(--ink2);margin-bottom:7px}
+.field textarea,.field input{width:100%;border:1.5px solid var(--line);border-radius:11px;padding:12px 13px;
+  font-family:inherit;font-size:14px;resize:none;background:#fff}
+.field textarea:focus,.field input:focus{outline:none;border-color:var(--blue2)}
+.upload{border:1.5px dashed #c4d2e4;border-radius:12px;padding:18px;text-align:center;color:var(--ink2);font-size:13px;background:#f8fbff}
+.gps-confirm{display:flex;align-items:center;gap:11px;background:#eef6ff;border:1px solid #d3e6fb;border-radius:12px;padding:12px 14px;font-size:12.5px}
+.gps-confirm .ic{font-size:18px}
+
+.btn{width:100%;background:var(--blue);color:#fff;border-radius:24px;padding:14px;font-weight:700;font-size:15px;
+  display:flex;align-items:center;justify-content:center;gap:8px;transition:.15s;box-shadow:0 6px 16px rgba(11,79,138,.24)}
+.btn:hover{background:var(--blue-dark)}
+.btn.ghost{background:#fff;color:var(--blue);border:1.5px solid var(--line);box-shadow:none}
+.btn.danger{background:var(--red);box-shadow:0 6px 16px rgba(231,76,60,.28)}
+.btn-row{display:flex;gap:11px;margin-top:8px}
+.btn-row .btn{margin:0}
+
+.topnav{display:flex;align-items:center;gap:12px;padding:13px 16px;background:#fff;border-bottom:1px solid var(--line);flex-shrink:0}
+.topnav .back{font-size:20px;color:var(--blue);font-weight:700}
+.topnav .ttl{font-weight:700;font-size:16px}
+
+.bottomnav{position:absolute;bottom:0;left:0;right:0;height:64px;background:#fff;border-top:1px solid var(--line);
+  display:flex;align-items:center;justify-content:space-around;padding-bottom:6px}
+.bottomnav button{display:flex;flex-direction:column;align-items:center;gap:3px;color:var(--ink3);font-size:10.5px;font-weight:600}
+.bottomnav button .em{font-size:18px}
+.bottomnav button.on{color:var(--blue)}
+
+.timeline{position:relative;padding-left:24px}
+.timeline::before{content:"";position:absolute;left:7px;top:6px;bottom:6px;width:2px;background:var(--line)}
+.tl-item{position:relative;padding-bottom:18px}
+.tl-item::before{content:"";position:absolute;left:-21px;top:3px;width:14px;height:14px;border-radius:50%;
+  background:#fff;border:3px solid var(--blue)}
+.tl-item.done::before{background:var(--blue)}
+.tl-item .tt{font-weight:600;font-size:13.5px}
+.tl-item .td{font-size:12px;color:var(--ink2);margin-top:2px}
+.tl-item .time{font-size:11px;color:var(--ink3);margin-top:2px}
+
+.chat-msg{max-width:78%;padding:10px 13px;border-radius:14px;font-size:13.5px;margin-bottom:10px;line-height:1.4}
+.chat-msg.them{background:#fff;border:1px solid var(--line);border-bottom-left-radius:4px}
+.chat-msg.me{background:var(--blue);color:#fff;margin-left:auto;border-bottom-right-radius:4px}
+.chat-msg .who{font-size:10.5px;font-weight:700;opacity:.7;margin-bottom:3px}
+.chat-time{font-size:10px;color:var(--ink3);margin-bottom:14px;text-align:center}
+
+.sos-active{height:100%;background:linear-gradient(180deg,#E74C3C,#c0392b);color:#fff;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;text-align:center;padding:30px}
+.sos-active .big{width:120px;height:120px;border-radius:50%;border:4px solid rgba(255,255,255,.6);display:grid;place-items:center;
+  font-size:48px;animation:pulse 1.6s infinite;margin-bottom:26px}
+.sos-active h2{font-size:24px;font-weight:800}
+.sos-active p{opacity:.92;margin-top:8px;font-size:14px;max-width:240px}
+.sos-active .live{margin-top:24px;background:rgba(0,0,0,.18);border-radius:12px;padding:12px 16px;font-size:12.5px;width:100%;max-width:260px;text-align:left}
+.sos-active .live .row{display:flex;justify-content:space-between;padding:3px 0}
+.sos-active .countdown{font-size:60px;font-weight:800}
+
+/* ---------- Doctor portal ---------- */
+.web-shell{background:var(--surface);border:1px solid var(--line);border-radius:16px;overflow:hidden;box-shadow:var(--shadow-lg);display:flex;min-height:660px}
+.web-side{width:230px;background:#0e2236;color:#cdd8e6;padding:18px 0;flex-shrink:0}
+.web-side .logo{padding:0 20px 18px;font-weight:700;font-size:14px;display:flex;gap:9px;align-items:center;border-bottom:1px solid rgba(255,255,255,.08)}
+.web-side .logo .e{width:30px;height:30px;border-radius:8px;background:#16324f;display:grid;place-items:center}
+.web-side nav{padding:14px 12px}
+.web-side nav button{width:100%;text-align:left;padding:10px 13px;border-radius:9px;font-size:13.5px;font-weight:600;color:#9fb0c4;
+  display:flex;align-items:center;gap:10px;margin-bottom:3px;transition:.15s}
+.web-side nav button:hover{background:rgba(255,255,255,.06);color:#fff}
+.web-side nav button.on{background:var(--blue2);color:#fff}
+.web-side nav .badge{margin-left:auto;background:var(--red);color:#fff;font-size:10.5px;font-weight:700;padding:1px 7px;border-radius:20px}
+.web-side .doc{margin-top:auto;padding:14px 20px;border-top:1px solid rgba(255,255,255,.08);font-size:12px}
+.web-main{flex:1;display:flex;flex-direction:column;background:var(--bg);min-width:0}
+.web-top{background:#fff;border-bottom:1px solid var(--line);padding:16px 24px;display:flex;align-items:center;gap:16px}
+.web-top h2{font-size:18px;font-weight:700}
+.web-top .spacer{flex:1}
+.filterbar{display:flex;gap:8px;padding:14px 24px;background:#fff;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.chip{font-size:12.5px;font-weight:600;padding:7px 13px;border-radius:20px;border:1.5px solid var(--line);color:var(--ink2);background:#fff;transition:.15s}
+.chip:hover{border-color:var(--blue2)}
+.chip.on{background:var(--blue);color:#fff;border-color:var(--blue)}
+.web-content{padding:20px 24px;overflow-y:auto;flex:1}
+
+.queue-row{display:flex;align-items:center;gap:16px;background:#fff;border:1px solid var(--line);border-radius:12px;
+  padding:14px 16px;margin-bottom:11px;transition:.15s;cursor:pointer}
+.queue-row:hover{border-color:var(--blue2);box-shadow:var(--shadow)}
+.queue-row .sevbar{width:5px;align-self:stretch;border-radius:4px}
+.queue-row .ava{width:42px;height:42px;border-radius:11px;background:#e8f1fb;color:var(--blue);display:grid;place-items:center;font-weight:700;font-size:15px;flex-shrink:0}
+.queue-row .info{flex:1;min-width:0}
+.queue-row .info .nm{font-weight:700;font-size:14.5px;display:flex;align-items:center;gap:9px}
+.queue-row .info .sub{font-size:12.5px;color:var(--ink2);margin-top:2px}
+.queue-row .right{text-align:right;font-size:12px;color:var(--ink3)}
+.queue-row .right .time{font-weight:700;color:var(--ink2);font-size:13px}
+
+.detail-grid{display:grid;grid-template-columns:1.4fr 1fr;gap:18px}
+.panel{background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px 20px;margin-bottom:16px}
+.panel h3{font-size:13px;letter-spacing:.6px;text-transform:uppercase;color:var(--ink2);margin-bottom:14px;font-weight:700}
+.kv{display:grid;grid-template-columns:130px 1fr;gap:7px 14px;font-size:13.5px}
+.kv .k{color:var(--ink3);font-weight:500}.kv .v{font-weight:600}
+.alergy{color:#c0392b;font-weight:700}
+.action-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.act{display:flex;align-items:center;gap:9px;padding:12px 13px;border:1.5px solid var(--line);border-radius:11px;
+  font-size:13px;font-weight:600;background:#fff;transition:.15s;text-align:left}
+.act:hover{border-color:var(--blue2);background:#f8fbff}
+.act .em{font-size:17px}
+.act.primary{background:var(--blue);color:#fff;border-color:var(--blue)}
+.act.danger{background:#fff;color:var(--red);border-color:#f3c4be}
+.act.danger:hover{background:#fdecea}
+
+.mini-map{height:170px;border-radius:12px;overflow:hidden;border:1px solid var(--line);position:relative;background:#dbeafe}
+
+/* ---------- Admin command center ---------- */
+.admin-grid{display:grid;grid-template-columns:1fr 340px;gap:18px}
+.map-wrap{background:#0a1f33;border:1px solid var(--line);border-radius:16px;overflow:hidden;box-shadow:var(--shadow-lg);position:relative;height:560px}
+.map-head{position:absolute;top:0;left:0;right:0;z-index:10;display:flex;align-items:center;gap:14px;
+  padding:14px 18px;background:linear-gradient(180deg,rgba(8,30,52,.92),rgba(8,30,52,0))}
+.map-head h3{color:#fff;font-size:15px;font-weight:700;display:flex;align-items:center;gap:9px}
+.live-dot{width:9px;height:9px;border-radius:50%;background:#3ddc84;box-shadow:0 0 0 0 rgba(61,220,132,.6);animation:pulse 1.8s infinite}
+.map-head .spacer{flex:1}
+.layer-toggles{display:flex;gap:6px;flex-wrap:wrap}
+.layer{font-size:11px;font-weight:600;color:#bcd0e6;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);
+  padding:5px 10px;border-radius:18px;display:flex;align-items:center;gap:6px;transition:.15s}
+.layer.on{background:rgba(46,134,193,.35);color:#fff;border-color:rgba(46,134,193,.6)}
+.layer .sw{width:8px;height:8px;border-radius:2px}
+.svgmap{width:100%;height:100%}
+.pin{cursor:pointer;transition:.15s}
+.pin:hover{transform:scale(1.18)}
+.map-legend{position:absolute;bottom:14px;left:18px;z-index:10;background:rgba(8,30,52,.82);border:1px solid rgba(255,255,255,.12);
+  border-radius:10px;padding:11px 14px;color:#cfe0f0;font-size:11.5px}
+.map-legend .li{display:flex;align-items:center;gap:8px;padding:2px 0}
+.map-legend .d{width:10px;height:10px;border-radius:50%}
+
+.pin-pop{position:absolute;z-index:20;background:#fff;border-radius:12px;box-shadow:0 16px 40px rgba(0,0,0,.3);
+  padding:14px 16px;width:240px;font-size:12.5px;display:none}
+.pin-pop .nm{font-weight:700;font-size:14px;margin-bottom:6px;display:flex;align-items:center;gap:8px}
+.pin-pop .row{display:flex;justify-content:space-between;padding:3px 0;color:var(--ink2)}
+.pin-pop .row b{color:var(--ink)}
+.pin-pop .close{position:absolute;top:8px;right:11px;color:var(--ink3);font-size:16px;font-weight:700}
+
+.alert-console{background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);display:flex;flex-direction:column;height:560px}
+.ac-head{padding:15px 18px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px}
+.ac-head h3{font-size:15px;font-weight:700}
+.ac-head .cnt{margin-left:auto;background:#fdecea;color:var(--red);font-weight:700;font-size:12px;padding:3px 10px;border-radius:20px}
+.ac-list{flex:1;overflow-y:auto;padding:12px}
+.alert-item{border:1px solid var(--line);border-left-width:4px;border-radius:11px;padding:12px 14px;margin-bottom:11px;transition:.15s}
+.alert-item.red{border-left-color:var(--red)}.alert-item.amber{border-left-color:var(--amber)}
+.alert-item.green{border-left-color:var(--green)}.alert-item.black{border-left-color:var(--black)}
+.alert-item .ai-top{display:flex;align-items:center;gap:9px;margin-bottom:5px}
+.alert-item .lvl{font-size:10px;font-weight:800;letter-spacing:.5px;padding:2px 8px;border-radius:5px;color:#fff}
+.lvl.red{background:var(--red)}.lvl.amber{background:var(--amber)}.lvl.green{background:var(--green)}.lvl.black{background:var(--black)}
+.alert-item .nm{font-weight:700;font-size:13.5px}
+.alert-item .desc{font-size:12.5px;color:var(--ink2);margin:4px 0 9px}
+.alert-item .timer{margin-left:auto;font-size:11px;font-weight:700;color:var(--red)}
+.alert-item .acts{display:flex;gap:8px}
+.alert-item .acts button{font-size:11.5px;font-weight:700;padding:6px 11px;border-radius:8px;border:1.5px solid var(--line);color:var(--ink2)}
+.alert-item .acts button.ack{background:var(--blue);color:#fff;border-color:var(--blue)}
+.alert-item .acts button.dispatch{background:var(--red);color:#fff;border-color:var(--red)}
+.alert-item.new{animation:flashIn 1s ease}
+@keyframes flashIn{0%{background:#fde4e1;transform:scale(1.02)}100%{background:#fff;transform:scale(1)}}
+
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:18px}
+.kpi{background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px;box-shadow:var(--shadow);position:relative}
+.kpi .lbl{font-size:11.5px;color:var(--ink2);font-weight:600;letter-spacing:.3px}
+.kpi .val{font-size:30px;font-weight:800;margin-top:6px;letter-spacing:-.5px}
+.kpi .tgt{font-size:11.5px;color:var(--ink3);margin-top:4px}
+.kpi .pill{position:absolute;top:16px;right:16px;font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px}
+.kpi .pill.ok{background:#e6f6ec;color:#1d8a4c}.kpi .pill.warn{background:#fdf0dc;color:#b9760a}
+.kpi .spark{display:flex;align-items:flex-end;gap:3px;height:30px;margin-top:12px}
+.kpi .spark span{flex:1;background:#d6e6f7;border-radius:2px}
+
+.adm-tabs{display:flex;gap:6px;margin-bottom:18px}
+.adm-tabs button{font-size:13.5px;font-weight:600;padding:9px 16px;border-radius:9px;color:var(--ink2);background:#fff;border:1px solid var(--line)}
+.adm-tabs button.on{background:var(--blue);color:#fff;border-color:var(--blue)}
+
+.toast{position:fixed;bottom:26px;left:50%;transform:translateX(-50%) translateY(20px);background:#0e2236;color:#fff;
+  padding:13px 20px;border-radius:12px;font-size:13.5px;font-weight:600;box-shadow:0 14px 40px rgba(0,0,0,.3);z-index:500;
+  opacity:0;transition:.25s;display:flex;align-items:center;gap:10px;pointer-events:none}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast .dot{width:9px;height:9px;border-radius:50%;background:#3ddc84}
+
+@media(max-width:1080px){.cards3{grid-template-columns:1fr}.admin-grid{grid-template-columns:1fr}.kpi-grid{grid-template-columns:repeat(2,1fr)}
+.alert-console,.map-wrap{height:auto}.detail-grid{grid-template-columns:1fr}.nav button .lbl-full{display:none}}
+@media(max-width:560px){.hero{padding:24px}.hero h1{font-size:23px}.stage{padding:16px}.phone{transform:scale(.92);transform-origin:top center}}
+</style>
+</head>
+<body>
+
+<!-- ===================== GLOBAL APP BAR ===================== -->
+<div class="appbar">
+  <div class="brand">
+    <div class="emblem">⚕</div>
+    <div>
+      <div>SAI Athlete Medical Platform</div>
+      <div class="sub">Geo-Mapped Remote Medical Assistance</div>
+    </div>
+  </div>
+  <div class="nav">
+    <button id="nav-overview" class="active" onclick="showInterface('overview')"><span class="lbl-full">Overview</span></button>
+    <button id="nav-athlete" onclick="showInterface('athlete')">📱 <span class="lbl-full">Athlete App</span></button>
+    <button id="nav-docapp" onclick="showInterface('docapp')">🩺 <span class="lbl-full">Doctor App</span></button>
+    <button id="nav-doctor" onclick="showInterface('doctor')">💻 <span class="lbl-full">Doctor Portal</span></button>
+    <button id="nav-admin" onclick="showInterface('admin')">🛰 <span class="lbl-full">Command Center</span></button>
+  </div>
+  <div class="spacer"></div>
+  <div class="event-chip"><span class="pin">📍</span> Asian Games · Aichi–Nagoya, Japan</div>
+  <div class="badge-mvp">MVP PROTOTYPE</div>
+</div>
+
+<div class="stage">
+
+<!-- ===================== OVERVIEW ===================== -->
+<section id="view-overview">
+  <div class="hero">
+    <div class="eyebrow">Sports Authority of India · Confidential</div>
+    <h1>Right medical support, at the right location, in the shortest operational time — for every Indian athlete abroad.</h1>
+    <p>A unified, location-aware platform connecting athletes, remote Indian doctors, on-ground medical teams, and SAI command — with a full audit trail and no single point of failure on any critical alert.</p>
+    <div class="stats">
+      <div class="stat"><div class="n">4</div><div class="l">Connected Surfaces</div></div>
+      <div class="stat"><div class="n">&lt; 3 min</div><div class="l">Red Alert SLA</div></div>
+      <div class="stat"><div class="n">4-Tier</div><div class="l">Alert Escalation</div></div>
+      <div class="stat"><div class="n">15 wk</div><div class="l">MVP Delivery</div></div>
+    </div>
+  </div>
+
+  <div class="section-title">Explore the platform</div>
+  <div class="cards3">
+    <div class="icard" onclick="showInterface('athlete')">
+      <span class="tag">ANDROID · MVP</span>
+      <div class="ic" style="background:#e8f1fb;color:var(--blue)">📱</div>
+      <h3>Athlete Mobile App</h3>
+      <p>Raise a medical issue in under two minutes, or hit SOS for a sub-10-second emergency. GPS-aware, offline-resilient, built for use under stress.</p>
+      <div class="open">Open the athlete app →</div>
+    </div>
+    <div class="icard" onclick="showInterface('docapp')">
+      <span class="tag">ANDROID · NEW</span>
+      <div class="ic" style="background:#e6f6ec;color:var(--green)">🩺</div>
+      <h3>Doctor Mobile App</h3>
+      <p>On-call doctors carry the case queue in their pocket — incoming emergency alerts, one-tap accept &amp; acknowledge, and tele-consult from anywhere.</p>
+      <div class="open">Open the doctor app →</div>
+    </div>
+    <div class="icard" onclick="showInterface('doctor')">
+      <span class="tag">WEB · MVP</span>
+      <div class="ic" style="background:#e8f1fb;color:var(--blue2)">💻</div>
+      <h3>Doctor Web Portal</h3>
+      <p>The full clinical workstation: triage-sorted queue, complete athlete context, anti-doping-safe prescribing, and immutable clinical notes.</p>
+      <div class="open">Open the doctor portal →</div>
+    </div>
+    <div class="icard" onclick="showInterface('admin')">
+      <span class="tag">WEB · MVP</span>
+      <div class="ic" style="background:#fdecea;color:var(--red)">🛰</div>
+      <h3>SAI Command Center</h3>
+      <p>Live map of every athlete and facility, real-time alert &amp; escalation console, and an operational KPI dashboard tracking every SLA.</p>
+      <div class="open">Open the command center →</div>
+    </div>
+  </div>
+
+  <div class="section-title">The critical path — these six must work flawlessly</div>
+  <div class="flow-strip">
+    <div class="flow-step"><span class="num">1</span><span class="lbl">Auth</span></div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-step"><span class="num">2</span><span class="lbl">Case Creation</span></div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-step"><span class="num">3</span><span class="lbl">GPS Capture</span></div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-step"><span class="num">4</span><span class="lbl">Alert Engine</span></div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-step"><span class="num">5</span><span class="lbl">Doctor Assignment</span></div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-step"><span class="num">6</span><span class="lbl">Video Consultation</span></div>
+  </div>
+
+  <div class="section-title">Live demo suggestion for the board</div>
+  <div class="note-item" style="max-width:none">
+    <div class="t">🎬 The cross-interface SOS moment</div>
+    <div class="d">Open the <b>Athlete App</b>, tap the red SOS button and let it confirm. The same emergency now lands in two places at once: open the <b>Doctor App</b> and the on-call doctor's phone is ringing with an incoming emergency to accept — then open the <b>Command Center</b> to see the live RED pin on the map and the alert in the console. One event, every role, in real time.</div>
+  </div>
+</section>
+
+<!-- ===================== ATHLETE APP ===================== -->
+<section id="view-athlete" class="hidden">
+  <div class="phone-wrap">
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="screen">
+        <div class="statusbar">
+          <span>9:41</span>
+          <span class="right">📶 🔋 SAI · Roaming</span>
+        </div>
+        <div class="app-view" id="athleteView"><!-- screens injected by JS --></div>
+      </div>
+    </div>
+    <div class="side-note">
+      <h4>What the board is seeing</h4>
+      <div class="note-item">
+        <div class="t">🔴 <span>SOS — under 10 seconds</span></div>
+        <div class="d">One tap, auto-confirm, GPS locked, RED alert fires to the nearest doctor, team official, command leadership and field unit — simultaneously.</div>
+      </div>
+      <div class="note-item">
+        <div class="t">📝 <span>Raise Issue — under 2 minutes</span></div>
+        <div class="d">Category → details with photo &amp; auto-GPS → confirm. Severity is auto-assigned and a doctor is allocated within ten minutes.</div>
+      </div>
+      <div class="note-item">
+        <div class="t">📡 <span>Built for Japan roaming</span></div>
+        <div class="d">Offline form mode, deferred media upload, and SMS fallback mean a weak signal never blocks an emergency.</div>
+      </div>
+      <div class="note-item">
+        <div class="t"><span class="badge">TRY IT</span></div>
+        <div class="d">Tap the red SOS button, then open the Command Center to watch the same alert arrive live.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== DOCTOR MOBILE APP ===================== -->
+<section id="view-docapp" class="hidden">
+  <div class="phone-wrap">
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="screen">
+        <div class="statusbar" style="background:#0e2236">
+          <span>9:41</span>
+          <span class="right">📶 🔋 On call · JST</span>
+        </div>
+        <div class="app-view" id="docAppView"><!-- screens injected by JS --></div>
+      </div>
+    </div>
+    <div class="side-note">
+      <h4>The doctor, on the move</h4>
+      <div class="note-item">
+        <div class="t">🆘 <span>Incoming emergency</span></div>
+        <div class="d">When an athlete fires SOS, the nearest on-call doctor's phone rings like an incoming call — accept and acknowledge in one tap, well inside the 3-minute RED SLA.</div>
+      </div>
+      <div class="note-item">
+        <div class="t">📋 <span>Queue in your pocket</span></div>
+        <div class="d">The same triage-sorted case queue as the web portal — emergency first — so a doctor between venues never misses a case.</div>
+      </div>
+      <div class="note-item">
+        <div class="t">💬 <span>Tele-consult anywhere</span></div>
+        <div class="d">Chat, audio and video consults, plus clinical notes that lock immutably to the case record — identical clinical governance to the desktop portal.</div>
+      </div>
+      <div class="note-item">
+        <div class="t"><span class="badge">TRY IT</span></div>
+        <div class="d">Raise an SOS in the Athlete App first, then return here to see the incoming emergency.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== DOCTOR PORTAL ===================== -->
+<section id="view-doctor" class="hidden">
+  <div class="web-shell">
+    <aside class="web-side">
+      <div class="logo"><span class="e">🩺</span> Doctor Portal</div>
+      <nav>
+        <button class="on" onclick="docNav('queue')">📋 Case Queue <span class="badge">7</span></button>
+        <button onclick="docNav('queue')">🕑 Pending Review</button>
+        <button onclick="docNav('queue')">✅ Closed Cases</button>
+        <button onclick="docNav('queue')">📑 WADA Reference</button>
+      </nav>
+      <div style="flex:1"></div>
+      <div class="doc">
+        <div style="color:#fff;font-weight:700">Dr. Ananya Rao</div>
+        <div style="opacity:.7;margin-top:2px">Sports Medicine · Online</div>
+      </div>
+    </aside>
+    <div class="web-main" id="docMain"><!-- views injected by JS --></div>
+  </div>
+</section>
+
+<!-- ===================== COMMAND CENTER ===================== -->
+<section id="view-admin" class="hidden">
+  <div class="adm-tabs">
+    <button class="on" id="atab-map" onclick="adminTab('map')">🗺 Live Map &amp; Alerts</button>
+    <button id="atab-kpi" onclick="adminTab('kpi')">📊 Operational KPIs</button>
+  </div>
+
+  <div id="admin-map">
+    <div class="admin-grid">
+      <div class="map-wrap">
+        <div class="map-head">
+          <h3><span class="live-dot"></span> Live Map — Aichi–Nagoya Contingent</h3>
+          <div class="spacer"></div>
+          <div class="layer-toggles">
+            <span class="layer on"><span class="sw" style="background:#e74c3c"></span>Athletes</span>
+            <span class="layer on"><span class="sw" style="background:#3498db"></span>Hospitals</span>
+            <span class="layer on"><span class="sw" style="background:#9b59b6"></span>ACLS/CATS</span>
+            <span class="layer"><span class="sw" style="background:#f1c40f"></span>Venues</span>
+          </div>
+        </div>
+        <svg class="svgmap" id="theMap" viewBox="0 0 900 560" preserveAspectRatio="xMidYMid slice"></svg>
+        <div class="map-legend">
+          <div class="li"><span class="d" style="background:#E74C3C"></span> Emergency / Red</div>
+          <div class="li"><span class="d" style="background:#F39C12"></span> Urgent / Amber</div>
+          <div class="li"><span class="d" style="background:#27AE60"></span> Routine / Stable</div>
+          <div class="li"><span class="d" style="background:#3498db"></span> Medical facility</div>
+        </div>
+        <div class="pin-pop" id="pinPop"></div>
+      </div>
+
+      <div class="alert-console">
+        <div class="ac-head">
+          <h3>Alert &amp; Escalation Console</h3>
+          <span class="cnt" id="alertCount">3 active</span>
+        </div>
+        <div class="ac-list" id="alertList"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="admin-kpi" class="hidden">
+    <div class="kpi-grid">
+      <div class="kpi"><span class="pill ok">ON TARGET</span><div class="lbl">T1 · Request → Acknowledge</div><div class="val">2.4<span style="font-size:16px">min</span></div><div class="tgt">Target &lt; 5 min</div><div class="spark"><span style="height:40%"></span><span style="height:55%"></span><span style="height:35%"></span><span style="height:48%"></span><span style="height:30%"></span></div></div>
+      <div class="kpi"><span class="pill ok">ON TARGET</span><div class="lbl">T2 · Doctor Assignment</div><div class="val">6.1<span style="font-size:16px">min</span></div><div class="tgt">Target &lt; 10 min</div><div class="spark"><span style="height:60%"></span><span style="height:45%"></span><span style="height:70%"></span><span style="height:50%"></span><span style="height:55%"></span></div></div>
+      <div class="kpi"><span class="pill ok">ON TARGET</span><div class="lbl">T3 · Consultation Start</div><div class="val">9.8<span style="font-size:16px">min</span></div><div class="tgt">Target &lt; 15 min</div><div class="spark"><span style="height:50%"></span><span style="height:65%"></span><span style="height:40%"></span><span style="height:60%"></span><span style="height:70%"></span></div></div>
+      <div class="kpi"><span class="pill warn">WATCH</span><div class="lbl">T4 · Field Response (Red)</div><div class="val">8.7<span style="font-size:16px">min</span></div><div class="tgt">Target &lt; 10 min</div><div class="spark"><span style="height:70%"></span><span style="height:85%"></span><span style="height:60%"></span><span style="height:90%"></span><span style="height:75%"></span></div></div>
+      <div class="kpi"><span class="pill ok">98.6%</span><div class="lbl">Alert Acknowledgement Rate</div><div class="val">98.6<span style="font-size:16px">%</span></div><div class="tgt">Target &gt; 98%</div><div class="spark"><span style="height:88%"></span><span style="height:92%"></span><span style="height:95%"></span><span style="height:90%"></span><span style="height:96%"></span></div></div>
+      <div class="kpi"><span class="pill ok">CLEAR</span><div class="lbl">Unresolved Cases &gt; 24h</div><div class="val">0</div><div class="tgt">Target 0</div><div class="spark"><span style="height:20%"></span><span style="height:10%"></span><span style="height:15%"></span><span style="height:5%"></span><span style="height:8%"></span></div></div>
+      <div class="kpi"><span class="pill ok">93%</span><div class="lbl">Facility Readiness Score</div><div class="val">93<span style="font-size:16px">%</span></div><div class="tgt">Target &gt; 90%</div><div class="spark"><span style="height:85%"></span><span style="height:90%"></span><span style="height:88%"></span><span style="height:93%"></span><span style="height:91%"></span></div></div>
+      <div class="kpi"><span class="pill ok">LIVE</span><div class="lbl">Active Cases Now</div><div class="val" id="kpiActive">5</div><div class="tgt">Across 42 athletes</div><div class="spark"><span style="height:40%"></span><span style="height:55%"></span><span style="height:50%"></span><span style="height:65%"></span><span style="height:60%"></span></div></div>
+    </div>
+    <div class="panel" style="margin-top:18px">
+      <h3>Auto-escalation policy (enforced by the alert engine)</h3>
+      <div class="kv" style="grid-template-columns:90px 1fr;gap:10px 16px">
+        <div class="k">GREEN</div><div class="v" style="font-weight:500">Unacknowledged for 30 min → escalates to AMBER. Recipients: assigned doctor + support staff.</div>
+        <div class="k">AMBER</div><div class="v" style="font-weight:500">Unacknowledged for 15 min → escalates to RED. Recipients: doctor + team medical + admin on duty.</div>
+        <div class="k">RED</div><div class="v" style="font-weight:500">Unacknowledged for 3 min → auto-call cascade to admin mobiles. Recipients: high-alert team + CATS/BLS/ACLS + leadership.</div>
+        <div class="k">BLACK</div><div class="v" style="font-weight:500">Immediate, no SLA. All channels + manual call cascade. Mass incident / multi-athlete / lost contact.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</div>
+
+<div class="toast" id="toast"><span class="dot"></span><span id="toastMsg"></span></div>
+
+<script>
+/* ============================================================
+   SAI Athlete Medical Platform — Prototype interactions
+   ============================================================ */
+
+/* ---------- shared demo state ---------- */
+const STATE = { sosRaised:false };
+
+function toast(msg){
+  const t=document.getElementById('toast');
+  document.getElementById('toastMsg').textContent=msg;
+  t.classList.add('show');
+  clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('show'),2600);
+}
+
+/* ---------- top-level interface switching ---------- */
+function showInterface(name){
+  ['overview','athlete','docapp','doctor','admin'].forEach(n=>{
+    document.getElementById('view-'+n).classList.toggle('hidden', n!==name);
+    document.getElementById('nav-'+n).classList.toggle('active', n===name);
+  });
+  window.scrollTo({top:0,behavior:'smooth'});
+  if(name==='athlete') renderAthlete('home');
+  if(name==='docapp') renderDocApp(STATE.sosRaised?'incoming':'home');
+  if(name==='doctor') docNav('queue');
+  if(name==='admin'){ adminTab('map'); }
+}
+
+/* ============================================================
+   ATHLETE MOBILE APP
+   ============================================================ */
+const AV = ()=>document.getElementById('athleteView');
+
+function bottomNav(active){
+  const items=[['home','🏠','Home'],['cases','📁','My Cases'],['chat','💬','Chat'],['notif','🔔','Alerts'],['profile','👤','Profile']];
+  return `<div class="bottomnav">${items.map(([id,em,l])=>
+    `<button class="${active===id?'on':''}" onclick="renderAthlete('${id==='home'?'home':id==='cases'?'cases':id==='chat'?'chat':id}')">
+      <span class="em">${em}</span>${l}</button>`).join('')}</div>`;
+}
+
+function renderAthlete(screen){
+  const v=AV();
+  if(screen==='home') v.innerHTML=scrHome();
+  else if(screen==='catpick') v.innerHTML=scrCategory();
+  else if(screen==='details') v.innerHTML=scrDetails();
+  else if(screen==='confirm') v.innerHTML=scrConfirm();
+  else if(screen==='cases') v.innerHTML=scrCases();
+  else if(screen==='casedetail') v.innerHTML=scrCaseDetail();
+  else if(screen==='chat') v.innerHTML=scrChat();
+  else if(screen==='sosactive') v.innerHTML=scrSosActive();
+  else if(screen==='notif') v.innerHTML=scrNotif();
+  else if(screen==='profile') v.innerHTML=scrProfile();
+  v.scrollTop=0;
+}
+
+function scrHome(){
+  const active = STATE.sosRaised;
+  return `
+  <div class="a-header">
+    <div class="hello">Good morning,</div>
+    <div class="name">Arjun Mehta · Boxing 🥊</div>
+    <div class="gps"><span class="led"></span> GPS sharing on · Athletes' Village</div>
+  </div>
+  <div class="a-body">
+    <button class="sos" onclick="triggerSOS()">
+      <div class="ring">🆘</div>
+      <div class="tx"><div class="t">SOS Emergency</div><div class="s">One tap — help dispatched instantly</div></div>
+    </button>
+
+    <div class="sec-label">Active case</div>
+    ${active?`
+    <div class="card case-card" onclick="renderAthlete('sosactive')" style="border-color:#f3c4be">
+      <div class="top"><span class="cid">SOS-2291 · EMERGENCY</span><span class="sev red">RED</span></div>
+      <h4>Emergency SOS active</h4>
+      <div class="meta">Location shared · responders en route</div>
+      <div class="status-row"><span class="led" style="background:var(--red)"></span> Tap to view live status</div>
+    </div>`:`
+    <div class="card case-card" onclick="renderAthlete('casedetail')">
+      <div class="top"><span class="cid">CASE-1043 · AMBER</span><span class="sev amber">URGENT</span></div>
+      <h4>Right ankle — suspected sprain</h4>
+      <div class="meta">Raised 18 min ago · Dr. Ananya Rao assigned</div>
+      <div class="status-row"><span class="led"></span> In consultation — video call available</div>
+    </div>`}
+
+    <div class="sec-label">What do you need?</div>
+    <button class="btn" onclick="renderAthlete('catpick')">＋ Raise a medical issue</button>
+    <div class="btn-row">
+      <button class="btn ghost" onclick="renderAthlete('cases')">📁 My cases</button>
+      <button class="btn ghost" onclick="renderAthlete('chat')">💬 Message doctor</button>
+    </div>
+  </div>
+  ${bottomNav('home')}`;
+}
+
+function scrCategory(){
+  const cats=[
+    ['🤕','Injury / Physical','Sprain · fracture · cut · head'],
+    ['🤒','Fever / Infection','Fever · flu · GI · rash'],
+    ['💧','Hydration / Nutrition','Dehydration · food · nutrition'],
+    ['💊','Medication','Anti-doping · refill · side effect'],
+    ['🧠','Mental Wellness','Anxiety · stress · sleep'],
+    ['🩺','General','Any other medical query'],
+  ];
+  return `
+  <div class="topnav"><button class="back" onclick="renderAthlete('home')">‹</button><span class="ttl">Raise an issue</span></div>
+  <div class="a-body">
+    <button class="sos" style="padding:14px 18px" onclick="triggerSOS()">
+      <div class="ring" style="width:42px;height:42px;font-size:18px">🆘</div>
+      <div class="tx"><div class="t" style="font-size:16px">It's an emergency</div><div class="s">Skip all steps — send SOS now</div></div>
+    </button>
+    <div class="sec-label">Select a category</div>
+    <div class="cat-grid">
+      ${cats.map(([em,nm,sb])=>`<button class="cat-tile" onclick="renderAthlete('details')">
+        <div class="em">${em}</div><div class="nm">${nm}</div><div class="sb">${sb}</div></button>`).join('')}
+    </div>
+  </div>
+  ${bottomNav('')}`;
+}
+
+function scrDetails(){
+  return `
+  <div class="topnav"><button class="back" onclick="renderAthlete('catpick')">‹</button><span class="ttl">Injury / Physical</span></div>
+  <div class="a-body">
+    <div class="field">
+      <label>Describe your symptoms</label>
+      <textarea rows="4" placeholder="e.g. Twisted my right ankle during training, swelling and pain when I put weight on it...">Twisted right ankle during sparring. Swelling on the outer side, painful to bear weight.</textarea>
+    </div>
+    <div class="field">
+      <label>Add photo, video or report (optional)</label>
+      <div class="upload">📎 Tap to attach — uploads automatically when signal is strong</div>
+    </div>
+    <div class="field">
+      <label>Your location</label>
+      <div class="gps-confirm"><span class="ic">📍</span><div><b>Athletes' Village, Block C</b><br><span style="color:var(--ink2)">GPS captured automatically · tap to adjust pin</span></div></div>
+    </div>
+    <button class="btn" onclick="renderAthlete('confirm')">Review &amp; submit →</button>
+  </div>
+  ${bottomNav('')}`;
+}
+
+function scrConfirm(){
+  return `
+  <div class="topnav"><button class="back" onclick="renderAthlete('details')">‹</button><span class="ttl">Confirm case</span></div>
+  <div class="a-body">
+    <div class="card" style="padding:18px;margin-bottom:16px">
+      <div class="sec-label" style="margin-top:0">Case summary</div>
+      <div class="kv" style="display:grid;grid-template-columns:108px 1fr;gap:9px 12px;font-size:13.5px">
+        <div style="color:var(--ink3)">Category</div><div style="font-weight:600">Injury — Sprain</div>
+        <div style="color:var(--ink3)">Symptoms</div><div style="font-weight:600">Right ankle, swelling, painful to weight-bear</div>
+        <div style="color:var(--ink3)">Location</div><div style="font-weight:600">Athletes' Village, Block C</div>
+        <div style="color:var(--ink3)">Auto-severity</div><div><span class="sev amber">PRIORITY · AMBER</span></div>
+      </div>
+    </div>
+    <div class="gps-confirm" style="margin-bottom:16px"><span class="ic">⏱</span><div>Estimated doctor assignment: <b>within 10 minutes</b></div></div>
+    <button class="btn" onclick="submitCase()">Confirm &amp; submit case</button>
+    <button class="btn ghost" style="margin-top:11px" onclick="renderAthlete('details')">Back to edit</button>
+  </div>
+  ${bottomNav('')}`;
+}
+
+function submitCase(){
+  toast('Case CASE-1043 created · support staff notified');
+  renderAthlete('casedetail');
+}
+
+function scrCaseDetail(){
+  return `
+  <div class="topnav"><button class="back" onclick="renderAthlete('home')">‹</button><span class="ttl">CASE-1043</span></div>
+  <div class="a-body">
+    <div class="card case-card" style="margin-bottom:16px">
+      <div class="top"><span class="cid">CASE-1043 · Athletes' Village</span><span class="sev amber">URGENT</span></div>
+      <h4>Right ankle — suspected sprain</h4>
+      <div class="meta">Dr. Ananya Rao · Sports Medicine</div>
+    </div>
+    <div class="sec-label">Status timeline</div>
+    <div class="card" style="padding:18px 18px 6px;margin-bottom:16px">
+      <div class="timeline">
+        <div class="tl-item done"><div class="tt">Case created</div><div class="td">Auto-triaged: Priority / Amber</div><div class="time">09:22 JST</div></div>
+        <div class="tl-item done"><div class="tt">Doctor assigned</div><div class="td">Dr. Ananya Rao · within SLA</div><div class="time">09:26 JST</div></div>
+        <div class="tl-item done"><div class="tt">Consultation started</div><div class="td">Video call · 6 min</div><div class="time">09:31 JST</div></div>
+        <div class="tl-item"><div class="tt">Follow-up scheduled</div><div class="td">Re-assess in 24h · ice &amp; elevation</div><div class="time">Pending</div></div>
+      </div>
+    </div>
+    <button class="btn" onclick="renderAthlete('chat')">💬 Open consultation</button>
+    <button class="btn ghost" style="margin-top:11px" onclick="toast('Case summary downloaded as PDF')">⬇ Download case summary (PDF)</button>
+  </div>
+  ${bottomNav('cases')}`;
+}
+
+function scrCases(){
+  const cases=[
+    ['CASE-1043','Right ankle — sprain','In consultation','amber','URGENT','18 min ago'],
+    ['CASE-0987','Mild dehydration','Closed · resolved','green','ROUTINE','2 days ago'],
+    ['CASE-0954','Anti-doping query — cold meds','Closed · verified safe','green','ROUTINE','4 days ago'],
+  ];
+  return `
+  <div class="topnav"><button class="back" onclick="renderAthlete('home')">‹</button><span class="ttl">My cases</span></div>
+  <div class="a-body">
+    ${cases.map(([id,t,st,sv,sl,ago])=>`
+    <div class="card case-card" onclick="renderAthlete('casedetail')">
+      <div class="top"><span class="cid">${id}</span><span class="sev ${sv}">${sl}</span></div>
+      <h4>${t}</h4><div class="meta">${ago}</div>
+      <div class="status-row"><span class="led" style="background:var(--${sv==='green'?'green':'amber'})"></span> ${st}</div>
+    </div>`).join('')}
+  </div>
+  ${bottomNav('cases')}`;
+}
+
+function scrChat(){
+  return `
+  <div class="topnav"><button class="back" onclick="renderAthlete('casedetail')">‹</button><span class="ttl">Dr. Ananya Rao</span>
+    <div style="margin-left:auto;display:flex;gap:14px;font-size:20px"><span onclick="toast('Connecting audio…')">📞</span><span onclick="toast('Starting HD video — falls back to audio if signal drops')">📹</span></div></div>
+  <div class="a-body" style="padding-bottom:90px">
+    <div class="chat-time">Today · 09:31 JST · Case CASE-1043</div>
+    <div class="chat-msg them"><div class="who">Dr. Ananya Rao</div>Hi Arjun, I can see your case. Can you put any weight on the ankle at all?</div>
+    <div class="chat-msg me">A little, but it hurts on the outer side.</div>
+    <div class="chat-msg them"><div class="who">Dr. Ananya Rao</div>Likely a grade-1 lateral sprain. Let's do RICE — rest, ice 15 min every 2 hours, compression and elevation. No anti-inflammatories until I confirm they're anti-doping safe for your event.</div>
+    <div class="chat-msg them"><div class="who">Dr. Ananya Rao</div>📎 Sent: Ankle_care_protocol.pdf</div>
+    <div class="chat-msg me">Got it, thank you doctor 🙏</div>
+    <div class="chat-msg them"><div class="who">Dr. Ananya Rao</div>I've set a 24-hour follow-up. If pain or swelling worsens, raise a new case or hit SOS.</div>
+  </div>
+  <div style="position:absolute;bottom:0;left:0;right:0;padding:10px 12px;background:#fff;border-top:1px solid var(--line);display:flex;gap:9px;align-items:center">
+    <div style="flex:1;border:1.5px solid var(--line);border-radius:22px;padding:10px 14px;color:var(--ink3);font-size:13.5px">Message…</div>
+    <div style="width:42px;height:42px;border-radius:50%;background:var(--blue);color:#fff;display:grid;place-items:center;font-size:17px">➤</div>
+  </div>`;
+}
+
+function scrNotif(){
+  const items=[
+    ['🟠','Doctor assigned to CASE-1043','Dr. Ananya Rao will consult shortly','9 min ago',false],
+    ['💬','New message from Dr. Rao','Ankle care protocol attached','7 min ago',false],
+    ['✅','Alert acknowledged','Your case was acknowledged in 2.4 min','9 min ago',true],
+    ['🔔','Follow-up reminder set','Re-assess ankle in 24 hours','5 min ago',true],
+  ];
+  return `
+  <div class="topnav"><button class="back" onclick="renderAthlete('home')">‹</button><span class="ttl">Notifications</span></div>
+  <div class="a-body">
+    ${items.map(([em,t,d,ago,read])=>`
+    <div class="card" style="padding:14px 16px;margin-bottom:11px;${read?'opacity:.72':''}">
+      <div style="display:flex;gap:12px;align-items:flex-start">
+        <div style="font-size:20px">${em}</div>
+        <div style="flex:1"><div style="font-weight:700;font-size:14px">${t}</div>
+        <div style="font-size:12.5px;color:var(--ink2);margin-top:2px">${d}</div>
+        <div style="font-size:11px;color:var(--ink3);margin-top:4px">${ago}</div></div>
+        ${read?'':'<div style="width:9px;height:9px;border-radius:50%;background:var(--blue);margin-top:5px"></div>'}
+      </div>
+    </div>`).join('')}
+  </div>
+  ${bottomNav('notif')}`;
+}
+
+function scrProfile(){
+  return `
+  <div class="topnav"><button class="back" onclick="renderAthlete('home')">‹</button><span class="ttl">Profile</span></div>
+  <div class="a-body">
+    <div class="card" style="padding:20px;text-align:center;margin-bottom:16px">
+      <div style="width:70px;height:70px;border-radius:50%;background:#e8f1fb;color:var(--blue);display:grid;place-items:center;font-size:26px;font-weight:700;margin:0 auto 12px">AM</div>
+      <div style="font-weight:700;font-size:17px">Arjun Mehta</div>
+      <div style="color:var(--ink2);font-size:13px">Boxing · Team India · ID SAI-IND-0412</div>
+    </div>
+    <div class="card" style="padding:18px;margin-bottom:16px">
+      <div class="sec-label" style="margin-top:0">Medical profile</div>
+      <div class="kv" style="display:grid;grid-template-columns:130px 1fr;gap:9px 12px;font-size:13.5px">
+        <div style="color:var(--ink3)">Blood group</div><div style="font-weight:600">O+</div>
+        <div style="color:var(--ink3)">Known allergies</div><div style="font-weight:600;color:#c0392b">Penicillin</div>
+        <div style="color:var(--ink3)">Emergency contact</div><div style="font-weight:600">Team Physio · +91 ••• ••812</div>
+      </div>
+    </div>
+    <div class="card" style="padding:16px 18px;display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <div><div style="font-weight:700;font-size:14px">GPS sharing</div><div style="font-size:12px;color:var(--ink2)">Consent-based · captured at case &amp; SOS only</div></div>
+      <div style="width:46px;height:26px;border-radius:20px;background:var(--green);position:relative"><div style="position:absolute;right:3px;top:3px;width:20px;height:20px;border-radius:50%;background:#fff"></div></div>
+    </div>
+    <button class="btn ghost" onclick="toast('Logged out securely')">Log out</button>
+  </div>
+  ${bottomNav('profile')}`;
+}
+
+/* ---------- SOS flow (cross-interface link) ---------- */
+function triggerSOS(){
+  let n=3;
+  const v=AV();
+  const render=()=>{ v.innerHTML=`
+    <div class="sos-active">
+      <div class="big">🆘</div>
+      <div class="countdown">${n}</div>
+      <h2>Sending SOS…</h2>
+      <p>Locking your GPS and alerting responders</p>
+      <button class="btn ghost" style="margin-top:24px;max-width:200px;background:rgba(255,255,255,.15);color:#fff;border-color:rgba(255,255,255,.4)" onclick="cancelSOS()">Cancel</button>
+    </div>`; };
+  render();
+  v._sos=setInterval(()=>{ n--; if(n<=0){ clearInterval(v._sos); confirmSOS(); } else render(); },800);
+}
+function cancelSOS(){ const v=AV(); clearInterval(v._sos); renderAthlete('home'); toast('SOS cancelled'); }
+function confirmSOS(){
+  STATE.sosRaised=true;
+  injectSosAlert();
+  renderAthlete('sosactive');
+  toast('🔴 RED alert dispatched — responders notified');
+}
+function scrSosActive(){
+  return `
+  <div class="sos-active">
+    <div class="big">📍</div>
+    <h2>Help is coming</h2>
+    <p>Your live location is shared with the response team. Stay where you are if safe.</p>
+    <div class="live">
+      <div class="row"><span>Alert level</span><b>RED · SOS-2291</b></div>
+      <div class="row"><span>Nearest doctor</span><b>Dr. K. Sharma ✓ ack</b></div>
+      <div class="row"><span>Field unit</span><b>ACLS-02 dispatched</b></div>
+      <div class="row"><span>GPS tracking</span><b>Live · every 30s</b></div>
+    </div>
+    <button class="btn ghost" style="margin-top:22px;max-width:220px;background:rgba(255,255,255,.15);color:#fff;border-color:rgba(255,255,255,.4)" onclick="resolveSOS()">I'm safe — resolve</button>
+  </div>`;
+}
+function resolveSOS(){
+  STATE.sosRaised=false;
+  removeSosAlert();
+  renderAthlete('home');
+  toast('SOS resolved · GPS tracking stopped');
+}
+
+/* ============================================================
+   DOCTOR MOBILE APP
+   ============================================================ */
+const DAV = ()=>document.getElementById('docAppView');
+
+function docAppNav(active){
+  const items=[['home','🏠','Queue'],['alerts','🔔','Alerts'],['consult','💬','Consults'],['profile','👤','Profile']];
+  return `<div class="bottomnav">${items.map(([id,em,l])=>
+    `<button class="${active===id?'on':''}" onclick="renderDocApp('${id}')"><span class="em">${em}</span>${l}</button>`).join('')}</div>`;
+}
+
+function renderDocApp(screen){
+  const v=DAV();
+  if(screen==='home') v.innerHTML=docHome();
+  else if(screen==='incoming') v.innerHTML=docIncoming();
+  else if(screen==='soscase') v.innerHTML=docSosCase();
+  else if(screen==='case') v.innerHTML=docCaseMobile();
+  else if(screen==='consult') v.innerHTML=docChatMobile();
+  else if(screen==='alerts') v.innerHTML=docAlertsMobile();
+  else if(screen==='profile') v.innerHTML=docProfileMobile();
+  v.scrollTop=0;
+}
+
+function docHome(){
+  const sos=STATE.sosRaised;
+  const rows = sos ? QUEUE : QUEUE.slice(1);
+  return `
+  <div class="a-header" style="background:linear-gradient(180deg,#13324f,#0e2236)">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start">
+      <div>
+        <div class="hello">On call · Asian Games</div>
+        <div class="name">Dr. Ananya Rao</div>
+        <div style="font-size:12px;opacity:.8;margin-top:1px">Sports Medicine</div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-size:11px;opacity:.85;margin-bottom:6px">Available</div>
+        <div style="width:46px;height:26px;border-radius:20px;background:var(--green);position:relative;margin-left:auto">
+          <div style="position:absolute;right:3px;top:3px;width:20px;height:20px;border-radius:50%;background:#fff"></div></div>
+      </div>
+    </div>
+  </div>
+  <div class="a-body">
+    ${sos?`
+    <div onclick="renderDocApp('incoming')" style="background:linear-gradient(180deg,#ef5b4c,#E74C3C);color:#fff;border-radius:16px;padding:16px;margin-bottom:16px;box-shadow:0 10px 24px rgba(231,76,60,.32);cursor:pointer;display:flex;align-items:center;gap:13px">
+      <div style="width:46px;height:46px;border:3px solid rgba(255,255,255,.7);border-radius:50%;display:grid;place-items:center;font-size:19px;animation:pulse 1.4s infinite">🆘</div>
+      <div style="flex:1"><div style="font-weight:800;font-size:16px">Incoming emergency</div>
+      <div style="font-size:12.5px;opacity:.92">Vikram Singh · Wrestling · tap to respond</div></div>
+      <div style="font-size:20px">›</div>
+    </div>`:''}
+    <div style="display:flex;gap:10px;margin-bottom:18px">
+      <div class="card" style="flex:1;padding:13px 8px;text-align:center"><div style="font-size:23px;font-weight:800;color:var(--blue)">${sos?6:5}</div><div style="font-size:10.5px;color:var(--ink2)">Open cases</div></div>
+      <div class="card" style="flex:1;padding:13px 8px;text-align:center"><div style="font-size:23px;font-weight:800;color:var(--amber)">2</div><div style="font-size:10.5px;color:var(--ink2)">Urgent</div></div>
+      <div class="card" style="flex:1;padding:13px 8px;text-align:center"><div style="font-size:23px;font-weight:800;color:var(--green)">2.4<span style="font-size:11px">m</span></div><div style="font-size:10.5px;color:var(--ink2)">Avg ack</div></div>
+    </div>
+    <div class="sec-label">Case queue · auto-triaged</div>
+    ${rows.map(([sv,sl,id,nm,sp,desc,loc,ago])=>`
+    <div class="card case-card" onclick="renderDocApp('${sv==='red'?'soscase':'case'}')" ${sv==='red'?'style="border-color:#f3c4be"':''}>
+      <div class="top"><span class="cid">${id} · ${sp}</span><span class="sev ${sv}">${sl}</span></div>
+      <h4 style="font-size:14.5px">${desc}</h4>
+      <div class="meta">${nm} · ${loc}</div>
+      <div class="status-row"><span class="led" style="background:var(--${sv})"></span> ${ago} since raised</div>
+    </div>`).join('')}
+  </div>
+  ${docAppNav('home')}`;
+}
+
+function docIncoming(){
+  return `
+  <div class="sos-active">
+    <div class="big">🆘</div>
+    <div style="font-size:12px;letter-spacing:1.5px;text-transform:uppercase;opacity:.88;font-weight:700">Incoming RED emergency</div>
+    <h2 style="margin-top:7px">Vikram Singh</h2>
+    <p>Wrestling · SOS-2291<br>Possible chest pain after collapse during weigh-in</p>
+    <div class="live">
+      <div class="row"><span>Location</span><b>Gymnasium · 1.2 km</b></div>
+      <div class="row"><span>GPS</span><b>Live · every 30s</b></div>
+      <div class="row"><span>Acknowledge SLA</span><b>within 3:00</b></div>
+    </div>
+    <button class="btn" style="margin-top:22px;max-width:250px;background:#fff;color:var(--red)" onclick="docAcceptSos()">Accept &amp; acknowledge</button>
+    <button class="btn" style="margin-top:11px;max-width:250px;background:rgba(255,255,255,.15);color:#fff;box-shadow:none" onclick="renderDocApp('home')">View queue</button>
+  </div>`;
+}
+
+function docAcceptSos(){
+  toast('Acknowledged in 0:14 · logged to audit trail');
+  renderDocApp('soscase');
+}
+
+function docSosCase(){
+  return `
+  <div class="topnav"><button class="back" onclick="renderDocApp('home')">‹</button><span class="ttl">SOS-2291</span>
+    <span class="sev red" style="margin-left:auto">RED</span></div>
+  <div class="a-body" style="padding-bottom:90px">
+    <div class="card case-card" style="border-color:#f3c4be;margin-bottom:14px">
+      <div class="top"><span class="cid">Gymnasium · GPS live</span><span class="sev red">EMERGENCY</span></div>
+      <h4>Possible chest pain — collapse</h4>
+      <div class="meta">Vikram Singh · Wrestling · acknowledged 0:14</div>
+    </div>
+    <div class="sec-label">Athlete profile</div>
+    <div class="card" style="padding:16px 18px;margin-bottom:14px">
+      <div class="kv" style="display:grid;grid-template-columns:120px 1fr;gap:8px 12px;font-size:13.5px">
+        <div style="color:var(--ink3)">Age · Blood</div><div style="font-weight:600">28 · B+</div>
+        <div style="color:var(--ink3)">Allergies</div><div style="font-weight:600">None known</div>
+        <div style="color:var(--ink3)">Conditions</div><div style="font-weight:600">None on record</div>
+        <div style="color:var(--ink3)">Nearest unit</div><div style="font-weight:600">ACLS-02 · 0.8 km</div>
+      </div>
+    </div>
+    <div class="sec-label">Act now</div>
+    <button class="btn danger" onclick="toast('ACLS-02 dispatched · command leadership notified')">🚑 Request ACLS dispatch</button>
+    <div class="btn-row">
+      <button class="btn" onclick="toast('Starting emergency video consult')">📹 Video</button>
+      <button class="btn ghost" onclick="toast('Escalated to admin leadership')">⚑ Escalate</button>
+    </div>
+  </div>
+  ${docAppNav('home')}`;
+}
+
+function docCaseMobile(){
+  return `
+  <div class="topnav"><button class="back" onclick="renderDocApp('home')">‹</button><span class="ttl">CASE-1043</span>
+    <span class="sev amber" style="margin-left:auto">URGENT</span></div>
+  <div class="a-body" style="padding-bottom:90px">
+    <div class="card case-card" style="margin-bottom:14px">
+      <div class="top"><span class="cid">Athletes' Village</span><span class="sev amber">PRIORITY</span></div>
+      <h4>Right ankle — suspected sprain</h4>
+      <div class="meta">Arjun Mehta · Boxing</div>
+    </div>
+    <div class="sec-label">Athlete profile</div>
+    <div class="card" style="padding:16px 18px;margin-bottom:14px">
+      <div class="kv" style="display:grid;grid-template-columns:120px 1fr;gap:8px 12px;font-size:13.5px">
+        <div style="color:var(--ink3)">Sport · Team</div><div style="font-weight:600">Boxing · Team India</div>
+        <div style="color:var(--ink3)">Age · Blood</div><div style="font-weight:600">25 · O+</div>
+        <div style="color:var(--ink3)">Allergies</div><div style="font-weight:600;color:#c0392b">Penicillin</div>
+        <div style="color:var(--ink3)">Medications</div><div style="font-weight:600">None current</div>
+      </div>
+    </div>
+    <div class="sec-label">Symptoms reported</div>
+    <div class="card" style="padding:15px 17px;margin-bottom:14px;font-size:13.5px;line-height:1.5">
+      Twisted right ankle during sparring. Swelling on the outer side, painful to bear weight. No numbness or deformity.
+      <div style="display:flex;gap:8px;margin-top:12px">
+        <div style="width:54px;height:54px;border-radius:9px;background:#eef2f7;display:grid;place-items:center;border:1px solid var(--line)">🖼</div>
+        <div style="width:54px;height:54px;border-radius:9px;background:#eef2f7;display:grid;place-items:center;border:1px solid var(--line)">🎞</div>
+        <div style="font-size:11.5px;color:var(--ink2);align-self:center">2 attachments</div>
+      </div>
+    </div>
+    <button class="btn" onclick="renderDocApp('consult')">📹 Start consultation</button>
+    <div class="btn-row">
+      <button class="btn ghost" onclick="toast('Clinical note locked to case')">📝 Note</button>
+      <button class="btn ghost" onclick="toast('Recommendation saved · anti-doping checked')">💊 Prescribe</button>
+    </div>
+    <div style="margin-top:12px;background:#fef9ec;border:1px solid #f5e3b3;border-radius:11px;padding:11px 13px;font-size:12px;display:flex;gap:9px">
+      <span style="font-size:15px">⚠️</span>
+      <div><b>Anti-doping:</b> medication field cross-references the WADA list. Confirm “verified safe for this event” before any prescription locks.</div>
+    </div>
+  </div>
+  ${docAppNav('home')}`;
+}
+
+function docChatMobile(){
+  return `
+  <div class="topnav"><button class="back" onclick="renderDocApp('case')">‹</button><span class="ttl">Arjun Mehta · Boxing</span>
+    <div style="margin-left:auto;display:flex;gap:14px;font-size:20px"><span onclick="toast('Connecting audio…')">📞</span><span onclick="toast('Starting HD video')">📹</span></div></div>
+  <div class="app-view" style="flex:1;overflow-y:auto"><div class="a-body" style="padding-bottom:80px">
+    <div class="chat-time">Today · 09:31 JST · CASE-1043</div>
+    <div class="chat-msg me">Hi Arjun, I can see your case. Can you put any weight on the ankle?</div>
+    <div class="chat-msg them"><div class="who">Arjun Mehta</div>A little, but it hurts on the outer side.</div>
+    <div class="chat-msg me">Likely a grade-1 lateral sprain. Let's do RICE — rest, ice 15 min every 2 hours, compression and elevation. Hold off on anti-inflammatories until I confirm they're anti-doping safe.</div>
+    <div class="chat-msg me">📎 Sent: Ankle_care_protocol.pdf</div>
+    <div class="chat-msg them"><div class="who">Arjun Mehta</div>Got it, thank you doctor 🙏</div>
+    <div class="chat-msg me">I've set a 24-hour follow-up. If pain or swelling worsens, raise a new case or hit SOS.</div>
+  </div></div>
+  <div style="padding:9px 12px;background:#fff;border-top:1px solid var(--line);display:flex;gap:9px;align-items:center">
+    <div style="flex:1;border:1.5px solid var(--line);border-radius:22px;padding:10px 14px;color:var(--ink3);font-size:13.5px">Reply to athlete…</div>
+    <div style="width:42px;height:42px;border-radius:50%;background:var(--blue);color:#fff;display:grid;place-items:center;font-size:17px">➤</div>
+  </div>
+  ${docAppNav('consult')}`;
+}
+
+function docAlertsMobile(){
+  const sos=STATE.sosRaised;
+  const base=[
+    ['🟠','New AMBER case · Priya Nair','Fever 38.9°C · acknowledge within 15 min','3 min ago',false],
+    ['💬','Athlete replied · CASE-1043','Arjun Mehta sent a message','7 min ago',false],
+    ['⏰','Follow-up due','Re-assess Arjun Mehta\'s ankle in 24h','22 min ago',true],
+    ['✅','Case closed','CASE-0987 dehydration · resolved','1h ago',true],
+  ];
+  const items = sos ? [['🆘','RED EMERGENCY · SOS-2291','Vikram Singh · tap to respond','now',false]].concat(base) : base;
+  return `
+  <div class="topnav"><button class="back" onclick="renderDocApp('home')">‹</button><span class="ttl">Alerts</span></div>
+  <div class="a-body">
+    ${items.map(([em,t,d,ago,read])=>`
+    <div class="card" style="padding:14px 16px;margin-bottom:11px;${read?'opacity:.7':''}${t.includes('EMERGENCY')?'border-color:#f3c4be':''}" ${t.includes('EMERGENCY')?'onclick="renderDocApp(\'incoming\')"':''}>
+      <div style="display:flex;gap:12px;align-items:flex-start">
+        <div style="font-size:20px">${em}</div>
+        <div style="flex:1"><div style="font-weight:700;font-size:14px">${t}</div>
+        <div style="font-size:12.5px;color:var(--ink2);margin-top:2px">${d}</div>
+        <div style="font-size:11px;color:var(--ink3);margin-top:4px">${ago}</div></div>
+        ${read?'':'<div style="width:9px;height:9px;border-radius:50%;background:var(--blue);margin-top:5px"></div>'}
+      </div>
+    </div>`).join('')}
+  </div>
+  ${docAppNav('alerts')}`;
+}
+
+function docProfileMobile(){
+  return `
+  <div class="topnav"><button class="back" onclick="renderDocApp('home')">‹</button><span class="ttl">My profile</span></div>
+  <div class="a-body">
+    <div class="card" style="padding:20px;text-align:center;margin-bottom:16px">
+      <div style="width:70px;height:70px;border-radius:50%;background:#e6f6ec;color:var(--green);display:grid;place-items:center;font-size:24px;font-weight:700;margin:0 auto 12px">AR</div>
+      <div style="font-weight:700;font-size:17px">Dr. Ananya Rao</div>
+      <div style="color:var(--ink2);font-size:13px">Sports Medicine · Remote India</div>
+    </div>
+    <div class="card" style="padding:16px 18px;display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+      <div><div style="font-weight:700;font-size:14px">On-call status</div><div style="font-size:12px;color:var(--ink2)">Receiving new case assignments</div></div>
+      <div style="width:46px;height:26px;border-radius:20px;background:var(--green);position:relative"><div style="position:absolute;right:3px;top:3px;width:20px;height:20px;border-radius:50%;background:#fff"></div></div>
+    </div>
+    <div class="card" style="padding:18px;margin-bottom:14px">
+      <div class="sec-label" style="margin-top:0">Today</div>
+      <div class="kv" style="display:grid;grid-template-columns:150px 1fr;gap:8px 12px;font-size:13.5px">
+        <div style="color:var(--ink3)">Cases handled</div><div style="font-weight:600">9</div>
+        <div style="color:var(--ink3)">Avg acknowledge</div><div style="font-weight:600">2.4 min</div>
+        <div style="color:var(--ink3)">Within SLA</div><div style="font-weight:600;color:#1d8a4c">100%</div>
+      </div>
+    </div>
+    <button class="btn ghost" onclick="toast('Logged out securely')">Log out</button>
+  </div>
+  ${docAppNav('profile')}`;
+}
+
+/* ============================================================
+   DOCTOR PORTAL
+   ============================================================ */
+function docNav(view){
+  const m=document.getElementById('docMain');
+  if(view==='queue') m.innerHTML=docQueue();
+  else if(view==='detail') m.innerHTML=docDetail();
+}
+
+const QUEUE=[
+  ['red','EMERGENCY','SOS-2291','Vikram Singh','Wrestling','Chest pain after collapse during weigh-in','GPS: Gymnasium · 1.2 km','2 min','AS'],
+  ['amber','URGENT','CASE-1043','Arjun Mehta','Boxing','Right ankle — suspected sprain','Athletes\' Village','18 min','—'],
+  ['amber','URGENT','CASE-1041','Priya Nair','Athletics','Fever 38.9°C, body aches since morning','Hotel Nikko','34 min','—'],
+  ['green','ROUTINE','CASE-1039','Rohan Das','Swimming','Mild dehydration, cramps after session','Aquatics Centre','51 min','—'],
+  ['green','ROUTINE','CASE-1036','Meera Iyer','Badminton','Anti-doping query on cold medication','Athletes\' Village','1h 12m','—'],
+];
+
+function docQueue(){
+  return `
+  <div class="web-top"><h2>Case Queue</h2><div class="spacer"></div>
+    <span style="font-size:12.5px;color:var(--ink2)">Auto-sorted: Emergency → Urgent → Priority → Routine</span></div>
+  <div class="filterbar">
+    <button class="chip on">All open</button><button class="chip">Emergency</button><button class="chip">Urgent</button>
+    <button class="chip">My cases</button><button class="chip">Boxing</button><button class="chip">Athletics</button>
+    <div style="flex:1"></div><button class="chip">↻ Refresh</button>
+  </div>
+  <div class="web-content">
+    ${QUEUE.map(([sv,sl,id,nm,sp,desc,loc,ago,ava])=>`
+    <div class="queue-row" onclick="docNav('detail')">
+      <div class="sevbar" style="background:var(--${sv})"></div>
+      <div class="ava">${ava==='—'?nm.split(' ').map(x=>x[0]).join(''):ava}</div>
+      <div class="info">
+        <div class="nm">${nm} <span class="sev ${sv}">${sl}</span> <span style="font-size:12px;color:var(--ink3);font-weight:600">${sp}</span></div>
+        <div class="sub">${desc}</div>
+        <div class="sub" style="color:var(--ink3);margin-top:3px">📍 ${loc} · ${id}</div>
+      </div>
+      <div class="right"><div class="time">${ago}</div><div>since raised</div></div>
+    </div>`).join('')}
+  </div>`;
+}
+
+function docDetail(){
+  setTimeout(fillDocMiniMap,30);
+  return `
+  <div class="web-top">
+    <button class="chip" onclick="docNav('queue')">‹ Back to queue</button>
+    <h2 style="margin-left:6px">Arjun Mehta — CASE-1043</h2>
+    <span class="sev amber" style="margin-left:4px">URGENT · AMBER</span>
+    <div class="spacer"></div>
+    <button class="chip" onclick="toast('Case escalated to admin with reason')">⚑ Escalate</button>
+  </div>
+  <div class="web-content">
+    <div class="detail-grid">
+      <div>
+        <div class="panel">
+          <h3>Case content</h3>
+          <p style="font-size:14.5px;line-height:1.55;margin-bottom:14px">Twisted right ankle during sparring. Swelling on the outer (lateral) side, painful to bear weight. No numbness or deformity reported.</p>
+          <div style="display:flex;gap:10px">
+            <div style="width:88px;height:88px;border-radius:10px;background:#eef2f7;display:grid;place-items:center;font-size:24px;border:1px solid var(--line)">🖼</div>
+            <div style="width:88px;height:88px;border-radius:10px;background:#eef2f7;display:grid;place-items:center;font-size:24px;border:1px solid var(--line)">🎞</div>
+            <div style="flex:1;font-size:12px;color:var(--ink2);align-self:center">2 attachments · uploaded over Wi-Fi at the Village</div>
+          </div>
+        </div>
+        <div class="panel">
+          <h3>Consultation actions</h3>
+          <div class="action-grid">
+            <button class="act primary" onclick="toast('Starting HD video — consent recorded')"><span class="em">📹</span> Start video consult</button>
+            <button class="act" onclick="toast('Case-linked chat opened')"><span class="em">💬</span> Start chat</button>
+            <button class="act" onclick="toast('Clinical note locked to case')"><span class="em">📝</span> Write clinical note</button>
+            <button class="act" onclick="toast('Recommendation saved')"><span class="em">💊</span> Issue recommendation</button>
+            <button class="act" onclick="toast('Referral request sent to admin')"><span class="em">🏥</span> Request referral</button>
+            <button class="act" onclick="toast('Follow-up set: 24 hours')"><span class="em">⏰</span> Set follow-up</button>
+            <button class="act danger" onclick="docNav('queue')"><span class="em">✅</span> Close case</button>
+            <button class="act danger" onclick="toast('Escalated — admin leadership notified')"><span class="em">⚑</span> Escalate to admin</button>
+          </div>
+          <div style="margin-top:14px;background:#fef9ec;border:1px solid #f5e3b3;border-radius:10px;padding:12px 14px;font-size:12.5px;display:flex;gap:10px">
+            <span style="font-size:16px">⚠️</span>
+            <div><b>Anti-doping safety:</b> medication field cross-references the WADA prohibited list. You must confirm “verified anti-doping safe for this event” before any prescription is locked.</div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="panel">
+          <h3>Athlete profile</h3>
+          <div class="kv">
+            <div class="k">Name</div><div class="v">Arjun Mehta</div>
+            <div class="k">Sport · Team</div><div class="v">Boxing · Team India</div>
+            <div class="k">DOB · Age</div><div class="v">14 Mar 2001 · 25</div>
+            <div class="k">Blood group</div><div class="v">O+</div>
+            <div class="k">Allergies</div><div class="v alergy">Penicillin</div>
+            <div class="k">Medications</div><div class="v">None current</div>
+          </div>
+        </div>
+        <div class="panel">
+          <h3>Location &amp; nearest facilities</h3>
+          <div class="mini-map" id="docMiniMap"></div>
+          <div style="margin-top:12px;font-size:12.5px">
+            <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--line2)"><span>🏥 Nagoya Daini Hospital</span><b>3.4 km · Available</b></div>
+            <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--line2)"><span>🚑 BLS Unit · Village Clinic</span><b>0.3 km · Standby</b></div>
+            <div style="display:flex;justify-content:space-between;padding:5px 0"><span>🧬 Sports Ortho · Aichi Med</span><b>6.1 km · Available</b></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function fillDocMiniMap(){
+  const el=document.getElementById('docMiniMap'); if(!el) return;
+  el.innerHTML=`<svg viewBox="0 0 320 170" style="width:100%;height:100%">
+    <rect width="320" height="170" fill="#dbeafe"/>
+    <path d="M0,110 Q80,80 160,100 T320,90 L320,170 L0,170 Z" fill="#bcdcff"/>
+    <line x1="80" y1="0" x2="80" y2="170" stroke="#c7ddf5" stroke-width="1"/>
+    <line x1="160" y1="0" x2="160" y2="170" stroke="#c7ddf5" stroke-width="1"/>
+    <line x1="240" y1="0" x2="240" y2="170" stroke="#c7ddf5" stroke-width="1"/>
+    <rect x="58" y="98" width="16" height="16" rx="4" fill="#27AE60" stroke="#fff" stroke-width="2"/>
+    <text x="50" y="92" font-size="9" fill="#1d6fb8" font-family="Inter" font-weight="600">Athlete</text>
+    <rect x="200" y="46" width="15" height="15" rx="3" fill="#3498db" stroke="#fff" stroke-width="1.5"/>
+    <text x="184" y="40" font-size="8.5" fill="#1d6fb8" font-family="Inter">Hospital 3.4km</text>
+    <rect x="92" y="120" width="13" height="13" rx="3" fill="#9b59b6" stroke="#fff" stroke-width="1.5"/>
+    <text x="78" y="148" font-size="8.5" fill="#7b3fa0" font-family="Inter">BLS 0.3km</text>
+  </svg>`;
+}
+
+/* ============================================================
+   COMMAND CENTER
+   ============================================================ */
+function adminTab(tab){
+  document.getElementById('admin-map').classList.toggle('hidden', tab!=='map');
+  document.getElementById('admin-kpi').classList.toggle('hidden', tab!=='kpi');
+  document.getElementById('atab-map').classList.toggle('on', tab==='map');
+  document.getElementById('atab-kpi').classList.toggle('on', tab==='kpi');
+  if(tab==='map'){ buildMap(); renderAlerts(); }
+}
+
+/* facility + athlete pins on stylized venue map */
+const PINS=[
+  // athletes (color by severity)
+  {type:'ath',x:340,y:250,c:'#27AE60',nm:'Arjun Mehta',sp:'Boxing',st:'CASE-1043 · Stable',loc:'Athletes\' Village'},
+  {type:'ath',x:520,y:200,c:'#F39C12',nm:'Priya Nair',sp:'Athletics',st:'CASE-1041 · Fever',loc:'Hotel Nikko'},
+  {type:'ath',x:610,y:330,c:'#27AE60',nm:'Rohan Das',sp:'Swimming',st:'CASE-1039 · Routine',loc:'Aquatics Centre'},
+  {type:'ath',x:430,y:380,c:'#27AE60',nm:'Meera Iyer',sp:'Badminton',st:'Closed today',loc:'Athletes\' Village'},
+  // facilities
+  {type:'hosp',x:250,y:150,c:'#3498db',nm:'Nagoya Daini Hospital',cap:'Emergency · Imaging · Ortho',st:'Available',loc:'3.4 km'},
+  {type:'hosp',x:680,y:430,c:'#3498db',nm:'Aichi Medical University',cap:'ACLS · Trauma · Cardiac',st:'Available',loc:'6.1 km'},
+  {type:'acls',x:470,y:300,c:'#9b59b6',nm:'ACLS Unit 02',cap:'Advanced life support',st:'Standby',loc:'Mobile'},
+];
+
+function buildMap(){
+  const svg=document.getElementById('theMap');
+  // stylized land/water + venue blocks
+  let s=`
+  <defs>
+    <radialGradient id="water" cx="40%" cy="30%" r="90%">
+      <stop offset="0%" stop-color="#123a5c"/><stop offset="100%" stop-color="#0a1f33"/>
+    </radialGradient>
+    <linearGradient id="land" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#16324f"/><stop offset="100%" stop-color="#12283f"/>
+    </linearGradient>
+  </defs>
+  <rect width="900" height="560" fill="url(#water)"/>
+  <path d="M120,90 Q300,40 520,80 T860,140 L880,360 Q700,420 520,400 T180,460 Q90,360 100,240 Z"
+        fill="url(#land)"/>
+  <path d="M120,90 Q300,40 520,80 T860,140 L880,360 Q700,420 520,400 T180,460 Q90,360 100,240 Z"
+        fill="none" stroke="#2a5a86" stroke-width="1.5" opacity="0.5"/>`;
+  // subtle grid
+  for(let i=1;i<9;i++) s+=`<line x1="${i*100}" y1="0" x2="${i*100}" y2="560" stroke="#234a6d" stroke-width="0.5" opacity="0.25"/>`;
+  for(let i=1;i<6;i++) s+=`<line x1="0" y1="${i*93}" x2="900" y2="${i*93}" stroke="#234a6d" stroke-width="0.5" opacity="0.25"/>`;
+  // venue cluster labels
+  s+=`<text x="330" y="235" fill="#7fa6c8" font-size="11" font-family="Inter" opacity="0.8">Athletes' Village</text>`;
+  s+=`<text x="600" y="320" fill="#7fa6c8" font-size="11" font-family="Inter" opacity="0.8">Aquatics</text>`;
+  s+=`<text x="505" y="188" fill="#7fa6c8" font-size="11" font-family="Inter" opacity="0.8">Hotel Cluster</text>`;
+
+  PINS.forEach((p,i)=>{
+    if(p.type==='ath'){
+      s+=`<g class="pin" onclick="popPin(${i},${p.x},${p.y})">
+        <circle cx="${p.x}" cy="${p.y}" r="13" fill="${p.c}" opacity="0.25"/>
+        <circle cx="${p.x}" cy="${p.y}" r="7" fill="${p.c}" stroke="#fff" stroke-width="2"/>
+      </g>`;
+    } else {
+      const icon = p.type==='hosp'?'✚':'◆';
+      s+=`<g class="pin" onclick="popPin(${i},${p.x},${p.y})">
+        <rect x="${p.x-9}" y="${p.y-9}" width="18" height="18" rx="4" fill="${p.c}" stroke="#fff" stroke-width="1.5"/>
+        <text x="${p.x}" y="${p.y+4}" text-anchor="middle" fill="#fff" font-size="11" font-weight="700">${icon}</text>
+      </g>`;
+    }
+  });
+  // SOS pin (added live)
+  if(STATE.sosRaised){
+    s+=`<g class="pin">
+      <circle cx="490" cy="270" r="22" fill="#E74C3C" opacity="0.22"><animate attributeName="r" values="14;26;14" dur="1.4s" repeatCount="indefinite"/></circle>
+      <circle cx="490" cy="270" r="9" fill="#E74C3C" stroke="#fff" stroke-width="2.5"/>
+      <text x="490" y="252" text-anchor="middle" fill="#ff9a8f" font-size="11" font-weight="700" font-family="Inter">SOS-2291</text>
+    </g>`;
+  }
+  svg.innerHTML=s;
+}
+
+function popPin(i,x,y){
+  const p=PINS[i], pop=document.getElementById('pinPop');
+  const wrap=document.querySelector('.map-wrap').getBoundingClientRect();
+  const svg=document.getElementById('theMap').getBoundingClientRect();
+  const sx=svg.width/900, sy=svg.height/560;
+  pop.style.display='block';
+  pop.style.left=Math.min(x*sx+14, wrap.width-255)+'px';
+  pop.style.top=Math.max(y*sy-30,46)+'px';
+  if(p.type==='ath'){
+    pop.innerHTML=`<span class="close" onclick="closePop()">×</span>
+      <div class="nm"><span style="width:10px;height:10px;border-radius:50%;background:${p.c};display:inline-block"></span>${p.nm}</div>
+      <div class="row"><span>Sport</span><b>${p.sp}</b></div>
+      <div class="row"><span>Case</span><b>${p.st}</b></div>
+      <div class="row"><span>Location</span><b>${p.loc}</b></div>
+      <div class="row"><span>Assigned</span><b>Dr. Ananya Rao</b></div>`;
+  } else {
+    pop.innerHTML=`<span class="close" onclick="closePop()">×</span>
+      <div class="nm"><span style="width:10px;height:10px;border-radius:3px;background:${p.c};display:inline-block"></span>${p.nm}</div>
+      <div class="row"><span>Capability</span><b>${p.cap}</b></div>
+      <div class="row"><span>Status</span><b style="color:#1d8a4c">${p.st}</b></div>
+      <div class="row"><span>Distance</span><b>${p.loc}</b></div>`;
+  }
+}
+function closePop(){ document.getElementById('pinPop').style.display='none'; }
+
+/* alert console */
+const BASE_ALERTS=[
+  ['amber','AMBER','Priya Nair','Athletics','Fever 38.9°C — awaiting doctor acknowledgement','11:24',false],
+  ['green','GREEN','Rohan Das','Swimming','Dehydration / cramps — routine advice in progress','11:09',true],
+  ['green','GREEN','Meera Iyer','Badminton','Anti-doping medication query — under review','10:48',true],
+];
+
+function renderAlerts(){
+  const list=document.getElementById('alertList');
+  let alerts=[...BASE_ALERTS];
+  if(STATE.sosRaised){
+    alerts.unshift(['red','RED','Vikram Singh','Wrestling — SOS-2291','SOS · possible chest pain after collapse · GPS live','now',false,true]);
+  }
+  list.innerHTML=alerts.map((a,idx)=>{
+    const [sv,lvl,nm,sp,desc,time,acked,isNew]=a;
+    return `<div class="alert-item ${sv} ${isNew?'new':''}">
+      <div class="ai-top">
+        <span class="lvl ${sv}">${lvl}</span>
+        <span class="nm">${nm}</span>
+        ${sv==='red'?'<span class="timer">⏱ SLA 3:00</span>':''}
+      </div>
+      <div class="desc">${sp} · ${desc}</div>
+      <div class="acts">
+        ${acked?'<button style="color:#1d8a4c;border-color:#bfe6cd">✓ Acknowledged</button>':'<button class="ack" onclick="ackAlert(this)">Acknowledge</button>'}
+        ${sv==='red'?'<button class="dispatch" onclick="toast(\'ACLS-02 dispatched · team official notified\')">Dispatch ACLS</button>':'<button onclick="toast(\'Doctor reassigned\')">Reassign</button>'}
+        <span style="margin-left:auto;font-size:11px;color:var(--ink3);align-self:center">${time}</span>
+      </div>
+    </div>`;
+  }).join('');
+  const cnt=alerts.length;
+  document.getElementById('alertCount').textContent=cnt+' active';
+  document.getElementById('kpiActive').textContent=STATE.sosRaised?'6':'5';
+}
+function ackAlert(btn){ btn.outerHTML='<button style="color:#1d8a4c;border-color:#bfe6cd">✓ Acknowledged</button>'; toast('Alert acknowledged · logged to audit trail'); }
+
+/* cross-interface: SOS raised in app -> alert + map pin in command center */
+function injectSosAlert(){ /* state already set; map & alerts rebuild on view open */ }
+function removeSosAlert(){}
+
+/* ---------- init ---------- */
+showInterface('overview');
+renderAthlete('home');
+
+</script>
+</body>
+</html>
